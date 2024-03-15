@@ -42,7 +42,7 @@ def GraficarRed(G,n_color):
         nx.draw(G, pos, node_color=[n_color[node] for node in G.nodes()], node_size=30, edge_color="grey", width=1, alpha=0.5)
         plt.xlim(-1.5, 1.5)  # Ajusta los límites x
         plt.ylim(-1.5, 1.5)  # Ajusta los límites y
-        plt.savefig("/Users/silviadelatorre/Desktop/TFG/GRAFICOS REDES/3 COORDS/RIO-GARONA.png")
+        plt.savefig("Results/GRAFICOS REDES/3 COORDS/RIO-GARONA.png")
         plt.show()
         # Dibujar el grafo (solo para fines de visualización)
         # GraficarRed(G)
