@@ -28,10 +28,10 @@ PERCENTAGE = 0.60
 
 def GraficarRed_API(G):
     print("Sacar imagen del gráfico usando netwulf")
-    pos = nx.kamada_kawai_layout(G)
+    #pos = nx.kamada_kawai_layout(G)
     # print("kamada layout hecho")
 
-    nw.visualize(G, config=pos)
+    nw.visualize(G) #,config=pos)
 
 def GraficarRed(G,n_color):
 
@@ -55,27 +55,23 @@ def CrearGrafo(edge_list):
     # Analizar el edge list y agregar los nodos y las aristas al grafo
     with open(edge_list, 'r') as f:
         for line in f:
-            # Dividir la línea en nodos y atributos
             nodos_y_atributos = line.strip().split(';')
-            #print(nodos_y_atributos)
-            # Extraer los nodos de la línea
             nodo1_coords = tuple(map(float, nodos_y_atributos[0][1:-1].split(', ')))
             nodo2_coords = tuple(map(float, nodos_y_atributos[1][1:-1].split(', ')))
 
             # Agregar la arista al grafo
-            G.add_edge(nodo2_coords, nodo1_coords) #invertir para direccion correcta??
-
-    # Mostrar la información básica del grafo
+            G.add_edge(nodo2_coords, nodo1_coords)
+            
     print("Número de nodos:", G.number_of_nodes())
     print("Número de aristas:", G.number_of_edges())
-    degrees = G.degree()  # Dict with Node ID, Degree
+    degrees = G.degree()
     nodes = G.nodes()
     n_color = np.asarray([degrees[n] for n in nodes])
     #GraficarRed(G,n_color)
     return G
 
 def StatusNodes(V):
-    global NodeInfo
+    global NodeInfom; df
 
     Nodes=V.nodes()
     NodeInfo = pd.DataFrame(Nodes)
@@ -107,13 +103,13 @@ def ObtenerPrimerNodo(G,agente):
                 id_rio = row[0]
                 coord = row[1]
                 valor_fosfato = float(row[2])
-                rios_mayor_contaminación = []
                 # Comprueba si el valor actual de fosfato es mayor que el máximo
                 if str(id_rio).startswith("10034") and valor_fosfato > max_fosfato:
                     max_fosfato = valor_fosfato
-                    #coord_max_fosfato = coord
+                    coord_max_fosfato = coord
+                    print(coord_max_fosfato)
 
-        print(f'El valor máximo de fosfato es {max_fosfato}')
+        print(f'El valor máximo de fosfato es {max_fosfato} en rio {id_rio}-{coord_max_fosfato}')
 
     return coord_max_fosfato
 
