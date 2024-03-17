@@ -61,7 +61,7 @@ def CrearGrafo(edge_list):
 
             # Agregar la arista al grafo
             G.add_edge(nodo2_coords, nodo1_coords)
-            
+
     print("Número de nodos:", G.number_of_nodes())
     print("Número de aristas:", G.number_of_edges())
     degrees = G.degree()
@@ -82,13 +82,14 @@ def StatusNodes(V):
     print(f'Status data frame: {df}')
 
 def Infected_Nodes(V):
+
+    global df
     StatusNodes(V)
     TotalNodes = len(V.nodes())
     TotalNodesInfect = df['Infection Status'].sum()
 
     Rate = TotalNodesInfect/TotalNodes
     return Rate
-
 
 
 def ObtenerPrimerNodo(G,agente):
