@@ -203,9 +203,10 @@ def Menu1():
             return option
         elif option == "2":
             print("Simulating propagation for each individual subnetwork")
-            # irle pasando los distintos ficheros de cada subred
-            for g in lista_individuales:
-                Menu2(g)
+            # irle pasando los distintos ficheros de enlaces de cada subred
+            
+            for enlaces,nombre_rio in rios:
+                Menu2(enlaces,nombre_rio)
             
             return option
         elif option == "3":
@@ -216,7 +217,7 @@ def Menu1():
 
 
 
-def Menu2(graph):
+def Menu2(graph,nombre_rio):
     while True:
         print("Choose an option:")
         print("1. Propagation with infection starting in node with highest nitrate contamination")
@@ -236,19 +237,29 @@ def Menu2(graph):
                 PropagarInfeccionTodasProbabilidades(0.5,"Nt",graph)
             break
         elif option == "2":
-            PropagarInfeccionTodasProbabilidades(0.5,"Fr",graph)
+            rate = Infected_Nodes(graph)
+            while (rate < PERCENTAGE): #and not all(state == "I"):
+                PropagarInfeccionTodasProbabilidades(0.5,"Fr",graph)
             break
         elif option == "3":
-            PropagarInfeccionTodasProbabilidades(0.5,"Ft",graph)
+            rate = Infected_Nodes(graph)
+            while (rate < PERCENTAGE): #and not all(state == "I"):
+                PropagarInfeccionTodasProbabilidades(0.5,"Ft",graph)
             break
         elif option == "4":
-            PropagarInfeccionTodasProbabilidades(0.5,"Am",graph)
+            rate = Infected_Nodes(graph)
+            while (rate < PERCENTAGE): #and not all(state == "I"):
+                PropagarInfeccionTodasProbabilidades(0.5,"Am",graph)
             break
         elif option == "5":
-            PropagarInfeccionTodasProbabilidades(0.5,"Fit",graph)
+            rate = Infected_Nodes(graph)
+            while (rate < PERCENTAGE): #and not all(state == "I"):
+                PropagarInfeccionTodasProbabilidades(0.5,"Fit",graph)
             break
         elif option == "6":
-            PropagarInfeccionTodasProbabilidades(0.5,"Gt",graph)
+            rate = Infected_Nodes(graph)
+            while (rate < PERCENTAGE): #and not all(state == "I"):
+                PropagarInfeccionTodasProbabilidades(0.5,"Gt",graph)
             break
         elif option == "7":
             break
