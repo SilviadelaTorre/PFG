@@ -46,6 +46,20 @@ def calcular_distancias(fich_rios, contaminante_sf, fich_output, contaminante_co
                 # Escribir datos en el archivo CSV
                 info_tramo.to_csv(fich_output, mode='a', header=header, index=False)
 
+def merge_csv_files_in_directory(directory):
+    dfs = []
+    for root, _, files in os.walk(directory):
+        for file in files:
+            if file.endswith('.csv'):
+                filepath = os.path.join(root, file)
+                df = pd.read_csv(filepath)
+                dfs.append(df)
+    merged_df = dfs[0]
+    for df in dfs[1:]:
+        merged_df = pd.merge(merged_df, df, on=['ID_RIO', 'coord_TRAMO'], how='inner')
+    
+    print(merged_df)
+    
 # Lectura de los datos de entrada
 df_rios_A = pd.read_csv("/Users/silviadelatorre/Desktop/TFG/FICHEROS INPUT/RiosAtlantico.csv")
 df_rios_M = pd.read_csv("/Users/silviadelatorre/Desktop/TFG/FICHEROS INPUT/RiosMediterraneo.csv")
@@ -74,6 +88,7 @@ output_folder_a = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COOR
 output_folder_m = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COORDS/MEDITERRANEO"
 
 contaminantesResult_list = [(fitobentos_gdf,"Fitobentos"),(nitrato_gdf,"Nitrato"),(amonio_gdf,"Amonio"),(fosforo_gdf,"Fosforo"),(fosfato_gdf,"Fosfato"),(grado_trofico_gdf,"Grado Trofico")]
+#dfs = []
 
 for vertiente in fich_rios_list:
     if vertiente is df_rios_A_gdf:
@@ -84,4 +99,13 @@ for vertiente in fich_rios_list:
         print(contaminante_col)
         output_path = os.path.join(output_folder, f"{contaminante_col}.csv")
         calcular_distancias(vertiente, contaminante_sf, output_path,contaminante_col)
+        #dfs.append(output_path)
 
+# UNIR TABLAS EN UNA SOLA
+# Directorios de vertientes
+vertientes_directorios = ['ATLANTICO', 'MEDITERRANEO']
+
+# Iterar sobre cada vertiente
+for vertiente in vertientes_directorios:
+    vertiente_path = os.path.join('VALORES CONTAMINACION', vertiente)
+    merged_df = merge_csv_files_in_directory(vertiente_path)
