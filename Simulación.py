@@ -26,26 +26,26 @@ NUM_NODOS=1
 PERCENTAGE = 0.60
 
 
-def GraficarRed_API(G):
-    print("Sacar imagen del gráfico usando netwulf")
-    #pos = nx.kamada_kawai_layout(G)
-    # print("kamada layout hecho")
+# def GraficarRed_API(G):
+#     print("Sacar imagen del gráfico usando netwulf")
+#     #pos = nx.kamada_kawai_layout(G)
+#     # print("kamada layout hecho")
 
-    nw.visualize(G) #,config=pos)
+#     nw.visualize(G) #,config=pos)
 
-def GraficarRed(G,n_color):
+# def GraficarRed(G,n_color):
 
-        print("Graficando...")
-        pos = nx.kamada_kawai_layout(G)
+#         print("Graficando...")
+#         pos = nx.kamada_kawai_layout(G)
 
-        # Dibuja los enlaces
-        nx.draw(G, pos, node_color=[n_color[node] for node in G.nodes()], node_size=30, edge_color="grey", width=1, alpha=0.5)
-        plt.xlim(-1.5, 1.5)  # Ajusta los límites x
-        plt.ylim(-1.5, 1.5)  # Ajusta los límites y
-        plt.savefig("Results/GRAFICOS REDES/3 COORDS/RIO-GARONA.png")
-        plt.show()
-        # Dibujar el grafo (solo para fines de visualización)
-        # GraficarRed(G)
+#         # Dibuja los enlaces
+#         nx.draw(G, pos, node_color=[n_color[node] for node in G.nodes()], node_size=30, edge_color="grey", width=1, alpha=0.5)
+#         plt.xlim(-1.5, 1.5)  # Ajusta los límites x
+#         plt.ylim(-1.5, 1.5)  # Ajusta los límites y
+#         plt.savefig("Results/GRAFICOS REDES/3 COORDS/RIO-GARONA.png")
+#         plt.show()
+#         # Dibujar el grafo (solo para fines de visualización)
+#         # GraficarRed(G)
         
 
 def CrearGrafo(edge_list):
@@ -75,15 +75,15 @@ def StatusNodes(V):
 
     Nodes=V.nodes()
     NodeInfo = pd.DataFrame(Nodes)
-    print(NodeInfo)
+    #print(NodeInfo)
     data = {'Node': Nodes, 'Infection Status': [NOT_INFECTED] * len(Nodes)}
     df = pd.DataFrame(data)
 
     print(f'Status data frame: {df}')
 
 def Infected_Nodes(V):
-
     global df
+
     StatusNodes(V)
     TotalNodes = len(V.nodes())
     TotalNodesInfect = df['Infection Status'].sum()
@@ -93,39 +93,39 @@ def Infected_Nodes(V):
 
 
 def ObtenerPrimerNodo(G,agente):
-    max_fosfato = 0
+    max = 0
     coord_max_fosfato = None
-    if(agente=='Ft'):
-        with open(fosfato, 'r') as csvfile:
-            reader = csv.reader(csvfile, delimiter=',')
-            next(reader)
-            for row in reader:
-                # Obtiene el ID del río, la coordenada y el valor de fosfato
-                id_rio = row[0]
-                coord = row[1]
-                valor_fosfato = float(row[2])
-                # Comprueba si el valor actual de fosfato es mayor que el máximo
-                if str(id_rio).startswith("10034") and valor_fosfato > max_fosfato:
-                    max_fosfato = valor_fosfato
-                    coord_max_fosfato = coord
-                    print(coord_max_fosfato)
+    print(str(G))
+    with open(agente, 'r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        next(reader)
+        for row in reader:
+            # Obtiene el ID del río, la coordenada y el valor de fosfato
+            id_rio = row[0]
+            coord = row[1]
+            valor_contaminante = float(row[2])
+            # Comprueba si el valor actual de fosfato es mayor que el máximo
+            if str(id_rio).startswith("10034") and valor_contaminante > max:
+                max = valor_contaminante
+                coord_max = coord
+                print(coord_max)
 
-        print(f'El valor máximo de fosfato es {max_fosfato} en rio {id_rio}-{coord_max_fosfato}')
+    print(f'El valor máximo de {str(agente)} es {max} en rio {id_rio}-{coord_max}')
 
     return coord_max_fosfato
 
-def GraficarInfección(G,FirstNode):
-    print("Coloreando infección")
+# def GraficarInfección(G,FirstNode):
+#     print("Coloreando infección")
 
-    print(FirstNode)
-    node_colors = ['red' if node == FirstNode else 'blue' for node in G.nodes()]
-    print(G.nodes())
-    for node in G.nodes():
-        print(node)
-        if node == FirstNode:
-            print("ENCONTRADO")
-    print(node_colors)
-    GraficarRed(G,node_colors)
+#     print(FirstNode)
+#     node_colors = ['red' if node == FirstNode else 'blue' for node in G.nodes()]
+#     print(G.nodes())
+#     for node in G.nodes():
+#         print(node)
+#         if node == FirstNode:
+#             print("ENCONTRADO")
+#     print(node_colors)
+#     GraficarRed(G,node_colors)
 
 def EjecutarIteracionInfeccion(V,Tipo):
 
@@ -150,7 +150,7 @@ def PropagarInfeccion2 (pR, pC, Tipo,V):
     global NDir
 
     print("Creando directorio")
-    NDir= os.getcwd() + "\\" + "..\\datos\\Propagacion"+str(pC)+"_"+str(pR)
+    NDir= "/Users/silviadelatorre/Desktop/TFG/PFG/Results/PROPAGACIÓN/"+str(pC)+"_"+str(pR)+"_NodoconMayorContaminacion"
     if (path.exists(NDir)):
         print("")
     else:
@@ -193,20 +193,17 @@ def Menu1():
 
         if option == "1":
             print("Simulating propagation for the entire network, infecting one node per subnetwork")
-            # leer fichero red global de enlaces y pasarle
-            '''
-            for enlaces_rio,nombre_rio in rios:
-                G = CrearGrafo(enlaces_rio, nombre_rio)
-                #Menu2(G)'''
-            G = CrearGrafo(enlaces_garona)
-            Menu2(G)
+            G = CrearGrafo(enlaces_global)
+            Menu2(G,"RIOS ESPAÑA")
             return option
+        
         elif option == "2":
             print("Simulating propagation for each individual subnetwork")
-            # irle pasando los distintos ficheros de enlaces de cada subred
             
             for enlaces,nombre_rio in rios:
-                Menu2(enlaces,nombre_rio)
+                print(f"Propagar infección en rio {nombre_rio}")
+                G = CrearGrafo(enlaces)
+                Menu2(G,nombre_rio)
             
             return option
         elif option == "3":
@@ -281,7 +278,7 @@ enlaces_barbate = "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelis
 enlaces_ter =  "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_20240311_125307_Grafo_RIU TER.csv"
 enlaces_palancia = "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_20240311_125307_Grafo_RIU PALANCIA.csv"
 enlaces_guadalquivir = "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_20240311_125307_Grafo_RIO GUADALQUIVIR.csv"
-rios = [(enlaces_guadalquivir,"RIO GUADALQUIVIR"),(enlaces_palancia,"RIO PALANCIA"),(enlaces_ter,"RIO TER"),(enlaces_barbate,"RIO BARBATE"),(enlaces_garona,"RIO GARONA"),(enlaces_segura,"RIO SEGURA"),(enlaces_guadiana,"RIO GUADIANA"),(enlaces_ebro,"RIO EBRO"),(enlaces_jucar,"RIO JUCAR"),(enlaces_tajo,"RIO TAJO"),(enlaces_global,"RIOS ESPAÑA")]
+rios = [(enlaces_guadalquivir,"RIO GUADALQUIVIR"),(enlaces_palancia,"RIO PALANCIA"),(enlaces_ter,"RIO TER"),(enlaces_barbate,"RIO BARBATE"),(enlaces_garona,"RIO GARONA"),(enlaces_segura,"RIO SEGURA"),(enlaces_guadiana,"RIO GUADIANA"),(enlaces_ebro,"RIO EBRO"),(enlaces_jucar,"RIO JUCAR"),(enlaces_tajo,"RIO TAJO")]
 
 fosfato = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COORDS/ATLANTICO/Fosfato.csv"
 '''
