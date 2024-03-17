@@ -10,7 +10,7 @@ def calcular_distancias(fich_rios, contaminante_sf, fich_output, contaminante_co
     for idx, rio in fich_rios.iterrows():
         linestring = rio['WKT']
         geometry = loads(linestring)
-        # Obtener el número de tramos inicial
+        
         for part in geometry.geoms:
             #Se reducen el número de tramos a 3
             coords = list(part.coords)
@@ -37,10 +37,8 @@ def calcular_distancias(fich_rios, contaminante_sf, fich_output, contaminante_co
                 }
                 info_tramo = pd.DataFrame(data)
 
-                # Agregar datos al archivo CSV
-                # Verificar si el archivo existe
+                # Agregar datos al archivo CSV y Verificar si el archivo existe
                 if os.path.exists(fich_output):
-                    # El archivo existe, no escribir un encabezado
                     header = False
                 else:
                     header = True
@@ -61,7 +59,6 @@ df_fitobentos = pd.read_csv("/Users/silviadelatorre/Desktop/TFG/AGENTES CONTAMIN
 # Convertir en objetos GeoDataFrame
 df_rios_A_gdf = gpd.GeoDataFrame(df_rios_A, geometry=gpd.GeoSeries.from_wkt(df_rios_A['WKT']))
 df_rios_M_gdf = gpd.GeoDataFrame(df_rios_M, geometry=gpd.GeoSeries.from_wkt(df_rios_M['WKT']))
-# Formatear archivos
 amonio_gdf = gpd.GeoDataFrame(df_amonio, geometry=gpd.GeoSeries.from_wkt(df_amonio['WKT']))
 nitrato_gdf = gpd.GeoDataFrame(df_nitrato, geometry=gpd.GeoSeries.from_wkt(df_nitrato['WKT']))
 fosforo_gdf = gpd.GeoDataFrame(df_fosforo, geometry=gpd.GeoSeries.from_wkt(df_fosforo['WKT']))
@@ -76,11 +73,7 @@ fich_rios_list = [df_rios_A_gdf, df_rios_M_gdf]
 output_folder_a = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COORDS/ATLANTICO"
 output_folder_m = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COORDS/MEDITERRANEO"
 
-
 contaminantesResult_list = [(fitobentos_gdf,"Fitobentos"),(nitrato_gdf,"Nitrato"),(amonio_gdf,"Amonio"),(fosforo_gdf,"Fosforo"),(fosfato_gdf,"Fosfato"),(grado_trofico_gdf,"Grado Trofico")]
-
-# Obtener el tiempo de inicio
-start_time = time.time()
 
 for vertiente in fich_rios_list:
     if vertiente is df_rios_A_gdf:
@@ -91,9 +84,4 @@ for vertiente in fich_rios_list:
         print(contaminante_col)
         output_path = os.path.join(output_folder, f"{contaminante_col}.csv")
         calcular_distancias(vertiente, contaminante_sf, output_path,contaminante_col)
-#calcular_distancias(df_rios_M_gdf, amonio_gdf, contaminacion_amonio,"Amonio")
-# Obtener el tiempo de finalización
-end_time = time.time()
-elapsed_time = end_time - start_time
-hours = elapsed_time/3600
-print(f"Tiempo transcurrido: {hours} horas")
+
