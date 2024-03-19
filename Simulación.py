@@ -281,14 +281,7 @@ enlaces_guadalquivir = "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Ed
 rios = [(enlaces_guadalquivir,"RIO GUADALQUIVIR"),(enlaces_palancia,"RIO PALANCIA"),(enlaces_ter,"RIO TER"),(enlaces_barbate,"RIO BARBATE"),(enlaces_garona,"RIO GARONA"),(enlaces_segura,"RIO SEGURA"),(enlaces_guadiana,"RIO GUADIANA"),(enlaces_ebro,"RIO EBRO"),(enlaces_jucar,"RIO JUCAR"),(enlaces_tajo,"RIO TAJO")]
 
 fosfato = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COORDS/ATLANTICO/Fosfato.csv"
-'''
-G = nx.read_edgelist(enlaces_global)
-G_D = nx.read_edgelist(enlaces_duero)
-G_T = nx.read_edgelist(enlaces_tajo)
-G_G = nx.read_edgelist(enlaces_guadiana)
-G_J = nx.read_edgelist(enlaces_jucar)
-G_E = nx.read_edgelist(enlaces_ebro)
-lista_individuales = [G_D,G_E,G_G,G_T,G_J]'''
+
 
 option1 = Menu1()
 
