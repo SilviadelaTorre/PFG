@@ -372,3 +372,5 @@ GraficarRed(GrafoGlobal,"Rios_España")
 # print("Graficar en cytoscape la red de rios")
 # # Create a Cytoscape network from the NetworkX graph
 # cy.networks.create_network_from_networkx(GrafoGlobal)
+
+Graficar
