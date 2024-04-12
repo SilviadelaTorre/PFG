@@ -71,7 +71,7 @@ def GraficarRed(G,rio):
         'nodeColor': 'blue',       # Node color
         'linkWidth': 2,            # Link width
         'linkColor': 'gray'        # Link color
-     }
+    }
     }
 
     print("Sacar imagen del gráfico usando netwulf")
@@ -99,6 +99,7 @@ def crear_enlaces(coords,Grafo):
 
         # Agregar enlace entre tramos de la misma línea
         Grafo.add_edge(nodo_origen, nodo_destino)
+
 
 def obtener_primer_nodo(coords):
     return coords[0]
@@ -143,7 +144,7 @@ def conectar_con_nivel_anterior(G, niveles_de_rios, nivel, pfafrio, nodo_con_rio
         if encontrado:
             break
 
-def Creacion_Grafo(rio):
+def Creacion_Grafo(rio,tabla_rios):
     
     print(f'=======GRAFO DE {rio[5]}: {rio[3]}')
     G = nx.DiGraph()
@@ -152,7 +153,7 @@ def Creacion_Grafo(rio):
 
     # Inicializa un diccionario vacío para almacenar los ríos por nivel
     niveles_de_rios = {}
-
+    longitud_total = 0
     #Agregar los afluentes del rio principal de manera jerárquica
     for nivel in range(14):
         print(" === Introducimos nodos de nivel "+str(nivel))
@@ -166,6 +167,7 @@ def Creacion_Grafo(rio):
             nivel_afluente = lista[-1]
             pfafrio = lista[3]
             vertiente = lista[2]
+            longitud = lista[6]
 
             # Iterar a través de los datos y agrégarlos al grafo
             if vertiente == rio[2] and nivel_afluente == nivel and str(pfafrio).startswith(str(rio[3])):
@@ -178,6 +180,7 @@ def Creacion_Grafo(rio):
                 nodo_con_rio_sig = obtener_ultimo_nodo(wkt)
 
                 #print(f'PRIMER TRAMO: {nodo_con_rio_ant}')
+                longitud_total += longitud_total + longitud
                 crear_enlaces(wkt, G)
                 #print(f'ULTIMO TRAMO: {nodo_con_rio_sig}')
 
@@ -191,16 +194,19 @@ def Creacion_Grafo(rio):
     # Invertir la dirección de las aristas del grafo
     #G_invertido = G.reverse()
     print("RESUMEN DEL RIO\n")
+    #AÑADE LOS DATOS A LA TABLA DE RIOS con los datos de cada grafo (Nombre, Codigo rio, Vertiente, Cuenca, Numero de nodos, Longitud total)
+    tabla_rios.append({
+        'Nombre':rio[5],
+        'Codigo rio':rio[3],
+        'Vertiente':rio[2],
+        'Numero de nodos':nx.number_of_nodes(G),
+        'Longitud total':longitud_total})
 
-    number_nodes = nx.number_of_nodes(G)
-    print(f'Nodos: {number_nodes}')
-    number_edges = nx.number_of_edges(G)
-    print(f'Enlaces: {number_edges}')
+    print(tabla_rios)
 
     nx.write_edgelist(G, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_Grafo_"+rio[5]+".csv",delimiter=';')
     print("Lista de enlaces guardada...\n")
     
-
     print("Graficando...")
     
     # net=Network(notebook=True,cdn_resources='remote')
@@ -322,8 +328,6 @@ def CalculoParametros(GrafoGlobal, fecha_hora_actual, nombre_rio):
 
         print("Fin escritura fichero\n")
 
-def TablaRios(rio):
-
 # ============================================================================
 # ============================================================================
 # ============================================================================
@@ -339,7 +343,7 @@ M_original = '/Users/silviadelatorre/Desktop/TFG/FICHEROS INPUT/RiosMediterraneo
 Rios_Proces = '/Users/silviadelatorre/Desktop/TFG/FICHEROS INPUT/RiosProcesable.csv'
 
 data = []
-
+tabla_rios = []
 # READ FILES
 leer_ficheros(A_original,data)
 leer_ficheros(M_original,data)
@@ -357,24 +361,28 @@ for i, rio in enumerate(lista_rios_ordenados, start=1):
 GrafoGlobal = nx.DiGraph()
 
 for rio in lista_rios_ordenados:
-    Creacion_Grafo(rio)
-    TablaRios(rio)
+    Creacion_Grafo(rio,tabla_rios)
+
+df = pd.DataFrame(tabla_rios)
+#Exportar tabla de rios
+df.to_csv('/Users/silviadelatorre/Desktop/TFG/PFG/Results/TablaGrafos.csv', index=False)
+
 
 
 # # GUARDAR LISTA DE ENLACES
-# # Escribe el grafo global en un archivo de lista de aristas
-# nx.write_edgelist(GrafoGlobal, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_GrafoGlobal.csv")
+# Escribe el grafo global en un archivo de lista de aristas
+nx.write_edgelist(GrafoGlobal, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_GrafoGlobal.csv")
 
-# print("Lista de enlaces red global guardada...\n")
+print("Lista de enlaces red global guardada...\n")
 
-# print("Calculando parámetros estructurales...")
-# CalculoParametros(GrafoGlobal,fecha_hora_actual,rios_filtrados[0][5])
+print("Calculando parámetros estructurales...")
+CalculoParametros(GrafoGlobal,fecha_hora_actual,rios_filtrados[0][5])
 
-# print("Graficar GLOBAL\n")
-# GraficarRed(GrafoGlobal,"Rios_España")
-# nx.draw(GrafoGlobal, with_labels=False, node_color='skyblue', font_color='black', node_size=800)
+print("Graficar GLOBAL\n")
+GraficarRed(GrafoGlobal,"Rios_España")
+nx.draw(GrafoGlobal, with_labels=False, node_color='skyblue', font_color='black', node_size=800)
 
-# print("Graficar en cytoscape la red de rios")
-# # Create a Cytoscape network from the NetworkX graph
-# cy.networks.create_network_from_networkx(GrafoGlobal)
+print("Graficar en cytoscape la red de rios")
+# Create a Cytoscape network from the NetworkX graph
+cy.networks.create_network_from_networkx(GrafoGlobal)
 
