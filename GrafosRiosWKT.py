@@ -321,6 +321,9 @@ def CalculoParametros(GrafoGlobal, fecha_hora_actual, nombre_rio):
         archivo.write(f"Core Number: {core_number}")
 
         print("Fin escritura fichero\n")
+
+def TablaRios(rio):
+
 # ============================================================================
 # ============================================================================
 # ============================================================================
@@ -353,24 +356,25 @@ for i, rio in enumerate(lista_rios_ordenados, start=1):
 # CREACIÓN DEL GRAFO DIRIGIDO
 GrafoGlobal = nx.DiGraph()
 
-#for rio in lista_rios_ordenados:
-Creacion_Grafo(lista_rios_ordenados[-1])
+for rio in lista_rios_ordenados:
+    Creacion_Grafo(rio)
+    TablaRios(rio)
 
-# GUARDAR LISTA DE ENLACES
-# Escribe el grafo global en un archivo de lista de aristas
-nx.write_edgelist(GrafoGlobal, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_GrafoGlobal.csv")
 
-print("Lista de enlaces red global guardada...\n")
+# # GUARDAR LISTA DE ENLACES
+# # Escribe el grafo global en un archivo de lista de aristas
+# nx.write_edgelist(GrafoGlobal, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_GrafoGlobal.csv")
 
-print("Calculando parámetros estructurales...")
-CalculoParametros(GrafoGlobal,fecha_hora_actual,rios_filtrados[0][5])
+# print("Lista de enlaces red global guardada...\n")
 
-print("Graficar GLOBAL\n")
-GraficarRed(GrafoGlobal,"Rios_España")
+# print("Calculando parámetros estructurales...")
+# CalculoParametros(GrafoGlobal,fecha_hora_actual,rios_filtrados[0][5])
+
+# print("Graficar GLOBAL\n")
+# GraficarRed(GrafoGlobal,"Rios_España")
 # nx.draw(GrafoGlobal, with_labels=False, node_color='skyblue', font_color='black', node_size=800)
 
 # print("Graficar en cytoscape la red de rios")
 # # Create a Cytoscape network from the NetworkX graph
 # cy.networks.create_network_from_networkx(GrafoGlobal)
 
-Graficar
