@@ -15,6 +15,7 @@ import geopandas as gpd
 from shapely.geometry import MultiLineString
 import pandas as pd
 import netwulf as nw
+import os
 
 # FUNCTIONS
 def leer_ficheros(file,data):
@@ -78,7 +79,7 @@ def GraficarRed(G,rio):
     #pos = nx.kamada_kawai_layout(G)
     #print("kamada layout hecho")
     
-    nw.visualize(G)
+    nw.visualize(G,config=config)
 
 def crear_enlaces(coords,Grafo):
     '''
@@ -204,10 +205,10 @@ def Creacion_Grafo(rio,tabla_rios):
 
     print(tabla_rios)
 
-    nx.write_edgelist(G, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_Grafo_"+rio[5]+".csv",delimiter=';')
-    print("Lista de enlaces guardada...\n")
-    
-    print("Graficando...")
+    print("calcular parametros estructural del grafo\n")
+    CalculoParametros(G,rio[5])
+    # nx.write_edgelist(G, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_Grafo_"+rio[5]+".csv",delimiter=';')
+    # print("Lista de enlaces guardada...\n")
     
     # net=Network(notebook=True,cdn_resources='remote')
 
@@ -216,22 +217,27 @@ def Creacion_Grafo(rio,tabla_rios):
     # node_strings = [str(node) for node in G.nodes()]
     # # Convertir las aristas a tuplas de cadenas de texto
     # edges_strings = [(str(edge[0]), str(edge[1])) for edge in G.edges()]
-
+    G.remove_edges_from(nx.selfloop_edges(G))
     print("Sacar imagen del gráfico")
     degrees = G.degree()  # Dict with Node ID, Degree
     nodes = G.nodes()
     n_color = np.asarray([degrees[n] for n in nodes])
 
-    pos = nx.kamada_kawai_layout(G)
+    pos = nx.spring_layout(G)
 
     plt.figure(figsize=(20, 20))
     nx.draw(G, pos=pos, node_color=n_color, cmap=plt.cm.jet, edge_color="grey", node_size=60,
             with_labels=False)
-    plt.savefig('/Users/silviadelatorre/Desktop/TFG/GRAFICOS REDES/3 COORDS/'+rio[5]+'.png',dpi=300)
+    directorio_graficos = "/Users/silviadelatorre/Desktop/TFG/PFG/Results/GRAFICOS REDES/3 COORDS-kamada/"
+    if not os.path.exists(directorio_graficos):
+        os.makedirs(directorio_graficos)
+    file_path = os.path.join(directorio_graficos, f'{rio[5]}.png')
+    plt.savefig(file_path,dpi=300)
     plt.show()
-    GraficarRed(G,str(rio[5]))
+    #GraficarRed(G,str(rio[5]))
+    return G
 
-def CalculoParametros(GrafoGlobal, fecha_hora_actual, nombre_rio):
+def CalculoParametros(GrafoGlobal, nombre_rio):
     # Calcular la heterogeneidad
     number_nodes = nx.number_of_nodes(GrafoGlobal)
     number_edges = nx.number_of_edges(GrafoGlobal)
@@ -278,12 +284,20 @@ def CalculoParametros(GrafoGlobal, fecha_hora_actual, nombre_rio):
     graph_pagerank = nx.pagerank(GrafoGlobal)
     print("k-core\n")
     # K - CORE
+    GrafoGlobal.remove_edges_from(nx.selfloop_edges(GrafoGlobal))
     core_number = nx.core_number(GrafoGlobal)
     k_core = nx.k_core(GrafoGlobal)
     print("Escribiendo parámetros en fichero\n")
 
-    # Guardar los resultados en un archivo
-    with open(f"/Users/silviadelatorre/Desktop/TFG/PARAMETROS/3 COORDS/Parametros_{fecha_hora_actual}_GrafoGlobal.txt", "w") as archivo:
+    directorio_parametros = "/Users/silviadelatorre/Desktop/TFG/PFG/Results/PARAMETROS/3 COORDS/"
+
+    # Verificar si el directorio ya existe
+    if not os.path.exists(directorio_parametros):
+        os.makedirs(directorio_parametros)  # Crea el directorio si no existe
+
+    file_path = os.path.join(directorio_parametros, f'{nombre_rio}.txt')
+
+    with open(file_path, "w") as archivo:
         archivo.write("PARÁMETROS DE HETEROGENEIDAD =================\n")
         archivo.write(f"Number of nodes in the graph: {number_nodes}\n")
         archivo.write(f"Number of edges in the graph: {number_edges}\n")
@@ -360,29 +374,29 @@ for i, rio in enumerate(lista_rios_ordenados, start=1):
 # CREACIÓN DEL GRAFO DIRIGIDO
 GrafoGlobal = nx.DiGraph()
 
-for rio in lista_rios_ordenados:
-    Creacion_Grafo(rio,tabla_rios)
-
-df = pd.DataFrame(tabla_rios)
-#Exportar tabla de rios
-df.to_csv('/Users/silviadelatorre/Desktop/TFG/PFG/Results/TablaGrafos.csv', index=False)
-
-
-
-# # GUARDAR LISTA DE ENLACES
-# Escribe el grafo global en un archivo de lista de aristas
-nx.write_edgelist(GrafoGlobal, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_GrafoGlobal.csv")
-
-print("Lista de enlaces red global guardada...\n")
-
-print("Calculando parámetros estructurales...")
-CalculoParametros(GrafoGlobal,fecha_hora_actual,rios_filtrados[0][5])
-
-print("Graficar GLOBAL\n")
-GraficarRed(GrafoGlobal,"Rios_España")
-nx.draw(GrafoGlobal, with_labels=False, node_color='skyblue', font_color='black', node_size=800)
-
-print("Graficar en cytoscape la red de rios")
+# for rio in lista_rios_ordenados:
+grafo = Creacion_Grafo(lista_rios_ordenados[-1],tabla_rios)
+print("Graficar en cytoscape la red")
 # Create a Cytoscape network from the NetworkX graph
-cy.networks.create_network_from_networkx(GrafoGlobal)
+cytoscape_network = cy.from_networkx(grafo, name=rio[6])
+
+# df = pd.DataFrame(tabla_rios)
+# #Exportar tabla de rios
+# df.to_csv('/Users/silviadelatorre/Desktop/TFG/PFG/Results/TablaGrafos.csv', index=False)
+
+
+# # # GUARDAR LISTA DE ENLACES
+# # Escribe el grafo global en un archivo de lista de aristas
+# nx.write_edgelist(GrafoGlobal, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_GrafoGlobal.csv")
+
+# print("Lista de enlaces red global guardada...\n")
+
+# print("Calculando parámetros estructurales...")
+# CalculoParametros(GrafoGlobal,fecha_hora_actual,rios_filtrados[0][5])
+
+# print("Graficar GLOBAL\n")
+# GraficarRed(GrafoGlobal,"Rios_España")
+# nx.draw(GrafoGlobal, with_labels=False, node_color='skyblue', font_color='black', node_size=800)
+
+
 
