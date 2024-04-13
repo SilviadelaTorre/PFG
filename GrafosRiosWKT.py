@@ -389,10 +389,11 @@ for rio in lista_rios_ordenados:
 
 # exportar tabla de rios
 #crear directorio si no existe
-directorio_propiedades = '/Users/silviadelatorre/Desktop/TFG/PFG/Results/PARAMETROS/3 COORDS/PropiedadesEstructurales.csv'
+directorio_propiedades = '/Users/silviadelatorre/Desktop/TFG/PFG/Results/PARAMETROS/3 COORDS/'
 if not os.path.exists(directorio_propiedades):
     os.makedirs(directorio_propiedades)  # Crea el directorio si no existe
 
+directorio_propiedades = os.path.join(directorio_propiedades, f'Propiedades_Estructurales.csv')
 df_rios = pd.DataFrame(columns=columnas)
 df_rios.to_csv(directorio_propiedades, index=False)
 print("Graficar en cytoscape la red")
