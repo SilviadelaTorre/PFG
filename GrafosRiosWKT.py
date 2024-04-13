@@ -206,38 +206,20 @@ def Creacion_Grafo(rio,tabla_rios):
     print(tabla_rios)
 
     print("calcular parametros estructural del grafo\n")
-    CalculoParametros(G,rio[5])
+
     # nx.write_edgelist(G, "/Users/silviadelatorre/Desktop/TFG/EDGE LIST/3 COORDS/Edgelist_"+fecha_hora_actual+"_Grafo_"+rio[5]+".csv",delimiter=';')
     # print("Lista de enlaces guardada...\n")
-    
     # net=Network(notebook=True,cdn_resources='remote')
-
     # print("Graficar usando pyvis Network")
     # # Convertir identificadores de nodos a cadenas de texto
     # node_strings = [str(node) for node in G.nodes()]
     # # Convertir las aristas a tuplas de cadenas de texto
     # edges_strings = [(str(edge[0]), str(edge[1])) for edge in G.edges()]
     G.remove_edges_from(nx.selfloop_edges(G))
-    print("Sacar imagen del gráfico")
-    degrees = G.degree()  # Dict with Node ID, Degree
-    nodes = G.nodes()
-    n_color = np.asarray([degrees[n] for n in nodes])
-
-    pos = nx.spring_layout(G)
-
-    plt.figure(figsize=(20, 20))
-    nx.draw(G, pos=pos, node_color=n_color, cmap=plt.cm.jet, edge_color="grey", node_size=60,
-            with_labels=False)
-    directorio_graficos = "/Users/silviadelatorre/Desktop/TFG/PFG/Results/GRAFICOS REDES/3 COORDS-kamada/"
-    if not os.path.exists(directorio_graficos):
-        os.makedirs(directorio_graficos)
-    file_path = os.path.join(directorio_graficos, f'{rio[5]}.png')
-    plt.savefig(file_path,dpi=300)
-    plt.show()
-    #GraficarRed(G,str(rio[5]))
+    
     return G
 
-def CalculoParametros(GrafoGlobal, nombre_rio):
+def CalculoParametros(GrafoGlobal, nombre_rio,df):
     # Calcular la heterogeneidad
     number_nodes = nx.number_of_nodes(GrafoGlobal)
     number_edges = nx.number_of_edges(GrafoGlobal)
@@ -297,6 +279,27 @@ def CalculoParametros(GrafoGlobal, nombre_rio):
 
     file_path = os.path.join(directorio_parametros, f'{nombre_rio}.txt')
 
+    # Añadir los resultados al DataFrame
+    new_row = pd.DataFrame({
+        'Nombre del Río': [nombre_rio],
+        'Número de Nodos': [number_nodes],
+        'Número de Aristas': [number_edges],
+        'Grado Máximo': [max_degree],
+        'Grado Mínimo': [min_degree],
+        'Grado Promedio': [mean_degree],
+        'Grado Más Frecuente': [freq_degree[0]],
+        'Conectado': [graph_connected],
+        'Componentes Conectados': [connected_components],
+        'Nodos en Subgrafo Grande': [number_nodes_largest],
+        'Aristas en Subgrafo Grande': [number_edges_largest],
+        'Subgrafo Grande Conectado': [largest_graph_connected],
+        'Diámetro Subgrafo Grande': [diameter_largest],
+        'Centralidad Máxima': [max_de],
+        'Cercanía Máxima': [max_clo]
+    })
+    
+    df = pd.concat([df, new_row], ignore_index=True)
+
     with open(file_path, "w") as archivo:
         archivo.write("PARÁMETROS DE HETEROGENEIDAD =================\n")
         archivo.write(f"Number of nodes in the graph: {number_nodes}\n")
@@ -341,7 +344,7 @@ def CalculoParametros(GrafoGlobal, nombre_rio):
         archivo.write(f"Core Number: {core_number}")
 
         print("Fin escritura fichero\n")
-
+    return df
 # ============================================================================
 # ============================================================================
 # ============================================================================
@@ -374,11 +377,27 @@ for i, rio in enumerate(lista_rios_ordenados, start=1):
 # CREACIÓN DEL GRAFO DIRIGIDO
 GrafoGlobal = nx.DiGraph()
 
-# for rio in lista_rios_ordenados:
-grafo = Creacion_Grafo(lista_rios_ordenados[-1],tabla_rios)
+# Inicializa el DataFrame fuera de la función si aún no existe
+columnas = ['Nombre del Río', 'Número de Nodos', 'Número de Aristas', 'Grado Máximo', 'Grado Mínimo', 'Grado Promedio',
+            'Grado Más Frecuente', 'Conectado', 'Componentes Conectados', 'Nodos en Subgrafo Grande', 'Aristas en Subgrafo Grande',
+            'Subgrafo Grande Conectado', 'Diámetro Subgrafo Grande', 'Centralidad Máxima', 'Cercanía Máxima']
+df_rios = pd.DataFrame(columns=columnas)
+
+for rio in lista_rios_ordenados:
+    grafo = Creacion_Grafo(rio,tabla_rios)
+    df_rios = CalculoParametros(grafo, rio[5], df_rios)
+
+# exportar tabla de rios
+#crear directorio si no existe
+directorio_propiedades = '/Users/silviadelatorre/Desktop/TFG/PFG/Results/PARAMETROS/3 COORDS/PropiedadesEstructurales.csv'
+if not os.path.exists(directorio_propiedades):
+    os.makedirs(directorio_propiedades)  # Crea el directorio si no existe
+
+df_rios = pd.DataFrame(columns=columnas)
+df_rios.to_csv(directorio_propiedades, index=False)
 print("Graficar en cytoscape la red")
 # Create a Cytoscape network from the NetworkX graph
-cytoscape_network = cy.from_networkx(grafo, name=rio[6])
+
 
 # df = pd.DataFrame(tabla_rios)
 # #Exportar tabla de rios
