@@ -88,7 +88,7 @@ output_folder_a = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COOR
 output_folder_m = "/Users/silviadelatorre/Desktop/TFG/DISTANCIAS SENSORES/3 COORDS/MEDITERRANEO"
 
 contaminantesResult_list = [(fitobentos_gdf,"Fitobentos"),(nitrato_gdf,"Nitrato"),(amonio_gdf,"Amonio"),(fosforo_gdf,"Fosforo"),(fosfato_gdf,"Fosfato"),(grado_trofico_gdf,"Grado Trofico")]
-#dfs = []
+
 
 for vertiente in fich_rios_list:
     if vertiente is df_rios_A_gdf:
@@ -109,3 +109,5 @@ vertientes_directorios = ['ATLANTICO', 'MEDITERRANEO']
 for vertiente in vertientes_directorios:
     vertiente_path = os.path.join('VALORES CONTAMINACION', vertiente)
     merged_df = merge_csv_files_in_directory(vertiente_path)
+
+
